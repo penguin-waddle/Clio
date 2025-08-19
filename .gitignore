@@ -14,3 +14,4 @@ gcloud init/
 
 # User-specific settings
 **/xcuserdata/
+service-account.json
