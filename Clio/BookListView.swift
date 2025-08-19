@@ -14,6 +14,7 @@ struct BookListView: View {
     @EnvironmentObject var readingListManager: ReadingListManager
     @State private var list: ReadingList?
     @State private var books: [Book] = []
+    @StateObject private var viewModel = BookListViewModel()
 
     var body: some View {
         Group {
@@ -46,15 +47,18 @@ struct BookListView: View {
 
     @ViewBuilder
     private func moodTagSection(for moodTag: MoodTag) -> some View {
-        let matchingLists = DataLoader.loadSampleData().filter { $0.moodTag == moodTag }
-
-        List {
-            ForEach(matchingLists) { list in
-                Section(header: Text(list.title)) {
-                    ForEach(list.books) { book in
-                        NavigationLink(destination: BookDetailView(book: book)) {
-                            BookCardView(book: book)
-                        }
+        if viewModel.books.isEmpty {
+            ProgressView("Loading...")
+                .task {
+                    // Clear old data and fetch new results
+                    viewModel.books = []
+                    await viewModel.fetchBooks(for: moodTag.keyword)
+                }
+        } else {
+            List {
+                ForEach(viewModel.books) { book in
+                    NavigationLink(destination: BookDetailView(book: book)) {
+                        BookCardView(book: book)
                     }
                 }
             }
