@@ -1,0 +1,16 @@
+{
+  "name": "clio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "init-link.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "google-auth-library": "^10.2.0",
+    "node-fetch": "^3.3.2"
+  }
+}

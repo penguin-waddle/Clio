@@ -1,0 +1,264 @@
+[
+  {
+    "id": "494c6737-654c-4365-b5a0-27b90ddd88e2",
+    "title": "Books for Lost",
+    "description": "A handpicked list for when you're feeling lost.",
+    "moodTag": "lost",
+    "books": [
+      {
+        "id": "bb82c505-497d-4943-99f7-ae88310891dc",
+        "title": "Everything I Know About Love",
+        "author": "Dolly Alderton",
+        "coverImageName": "book_placeholder",
+        "description": "A funny and deeply personal memoir of friendship, love, and growing up."
+      },
+      {
+        "id": "75a763d1-ec31-4979-8ca2-8266754cbed9",
+        "title": "The Year of Magical Thinking",
+        "author": "Joan Didion",
+        "coverImageName": "book_placeholder",
+        "description": "A moving, honest, and raw reflection on grief and memory after the loss of a husband."
+      },
+      {
+        "id": "6b4878ac-5e46-410d-8ee9-bf3131338b8c",
+        "title": "Braiding Sweetgrass",
+        "author": "Robin Wall Kimmerer",
+        "coverImageName": "book_placeholder",
+        "description": "Indigenous wisdom, scientific knowledge, and the teachings of plants."
+      }
+    ]
+  },
+  {
+    "id": "81e2a006-d03f-4a4c-b86a-9b9cdcf490ba",
+    "title": "Books for Hopeful",
+    "description": "A handpicked list for when you're feeling hopeful.",
+    "moodTag": "hopeful",
+    "books": [
+      {
+        "id": "360fe721-55f7-46b5-a6d3-4ef029d8e870",
+        "title": "Everything I Know About Love",
+        "author": "Dolly Alderton",
+        "coverImageName": "book_placeholder",
+        "description": "A funny and deeply personal memoir of friendship, love, and growing up."
+      },
+      {
+        "id": "b13c2f24-4c87-4295-a036-4c8c9b510933",
+        "title": "Man\u2019s Search for Meaning",
+        "author": "Viktor E. Frankl",
+        "coverImageName": "book_placeholder",
+        "description": "A powerful psychological exploration of survival and the search for purpose."
+      },
+      {
+        "id": "e2fda0c6-4b39-4ff1-9136-0def025a2dca",
+        "title": "Braiding Sweetgrass",
+        "author": "Robin Wall Kimmerer",
+        "coverImageName": "book_placeholder",
+        "description": "Indigenous wisdom, scientific knowledge, and the teachings of plants."
+      }
+    ]
+  },
+  {
+    "id": "1ea22e1f-e840-4919-b2dc-c45d338b2e84",
+    "title": "Books for Healing",
+    "description": "A handpicked list for when you're feeling healing.",
+    "moodTag": "healing",
+    "books": [
+      {
+        "id": "525ae71b-10fd-4901-bb44-78211d3d940e",
+        "title": "Tiny Beautiful Things",
+        "author": "Cheryl Strayed",
+        "coverImageName": "book_placeholder",
+        "description": "A collection of heart-opening letters and responses from the beloved 'Dear Sugar' advice column."
+      },
+      {
+        "id": "61e3ac3a-d78a-48e3-9b63-2b5fb74b8738",
+        "title": "The Year of Magical Thinking",
+        "author": "Joan Didion",
+        "coverImageName": "book_placeholder",
+        "description": "A moving, honest, and raw reflection on grief and memory after the loss of a husband."
+      },
+      {
+        "id": "66b5aea7-6d2b-4fac-9659-5ce2052853d7",
+        "title": "The Art of Happiness",
+        "author": "Dalai Lama",
+        "coverImageName": "book_placeholder",
+        "description": "Spiritual wisdom and psychological insight from a Buddhist monk and a psychiatrist."
+      }
+    ]
+  },
+  {
+    "id": "756f3225-e1b9-4b15-84aa-067751aea60e",
+    "title": "Books for Nostalgic",
+    "description": "A handpicked list for when you're feeling nostalgic.",
+    "moodTag": "nostalgic",
+    "books": [
+      {
+        "id": "f241777c-6407-4c51-9858-0bfd99466fee",
+        "title": "The Art of Happiness",
+        "author": "Dalai Lama",
+        "coverImageName": "book_placeholder",
+        "description": "Spiritual wisdom and psychological insight from a Buddhist monk and a psychiatrist."
+      },
+      {
+        "id": "b5116975-3d12-496a-8355-61db91d7d824",
+        "title": "The Year of Magical Thinking",
+        "author": "Joan Didion",
+        "coverImageName": "book_placeholder",
+        "description": "A moving, honest, and raw reflection on grief and memory after the loss of a husband."
+      },
+      {
+        "id": "4faf7a22-3866-46a4-9108-9e49b0bb70e7",
+        "title": "Man\u2019s Search for Meaning",
+        "author": "Viktor E. Frankl",
+        "coverImageName": "book_placeholder",
+        "description": "A powerful psychological exploration of survival and the search for purpose."
+      }
+    ]
+  },
+  {
+    "id": "064aa61f-5fa5-465a-beb9-8c6731612bf8",
+    "title": "Books for Growing",
+    "description": "A handpicked list for when you're feeling growing.",
+    "moodTag": "growing",
+    "books": [
+      {
+        "id": "a4020975-ea5b-49bc-96a0-82326745831a",
+        "title": "Everything I Know About Love",
+        "author": "Dolly Alderton",
+        "coverImageName": "book_placeholder",
+        "description": "A funny and deeply personal memoir of friendship, love, and growing up."
+      },
+      {
+        "id": "0d1bc731-6fc7-4145-b83f-9bd69bf827f6",
+        "title": "The Year of Magical Thinking",
+        "author": "Joan Didion",
+        "coverImageName": "book_placeholder",
+        "description": "A moving, honest, and raw reflection on grief and memory after the loss of a husband."
+      },
+      {
+        "id": "59ebcbd7-7133-40aa-8d67-68aebfc85ab0",
+        "title": "Man\u2019s Search for Meaning",
+        "author": "Viktor E. Frankl",
+        "coverImageName": "book_placeholder",
+        "description": "A powerful psychological exploration of survival and the search for purpose."
+      }
+    ]
+  },
+  {
+    "id": "aa578e84-93de-4ae0-944a-5f107ba41a66",
+    "title": "Books for Drifting",
+    "description": "A handpicked list for when you're feeling drifting.",
+    "moodTag": "drifting",
+    "books": [
+      {
+        "id": "49542827-ad29-40e5-a7f3-70f801b59dad",
+        "title": "Man\u2019s Search for Meaning",
+        "author": "Viktor E. Frankl",
+        "coverImageName": "book_placeholder",
+        "description": "A powerful psychological exploration of survival and the search for purpose."
+      },
+      {
+        "id": "7fecf92a-9d06-4258-9f4f-c05857c1a5d4",
+        "title": "The Year of Magical Thinking",
+        "author": "Joan Didion",
+        "coverImageName": "book_placeholder",
+        "description": "A moving, honest, and raw reflection on grief and memory after the loss of a husband."
+      },
+      {
+        "id": "5d568f94-8e87-4cda-ba85-ad6472236528",
+        "title": "Tiny Beautiful Things",
+        "author": "Cheryl Strayed",
+        "coverImageName": "book_placeholder",
+        "description": "A collection of heart-opening letters and responses from the beloved 'Dear Sugar' advice column."
+      }
+    ]
+  },
+  {
+    "id": "cdc71125-76c6-4844-bcf9-b112a3cf31b0",
+    "title": "Books for Startingover",
+    "description": "A handpicked list for when you're feeling startingover.",
+    "moodTag": "startingOver",
+    "books": [
+      {
+        "id": "b064e1b0-30e6-4bf9-be5e-0465e6ec8ae6",
+        "title": "The Year of Magical Thinking",
+        "author": "Joan Didion",
+        "coverImageName": "book_placeholder",
+        "description": "A moving, honest, and raw reflection on grief and memory after the loss of a husband."
+      },
+      {
+        "id": "4ba1f4b4-50fd-4001-8443-41b5b4b81156",
+        "title": "Tiny Beautiful Things",
+        "author": "Cheryl Strayed",
+        "coverImageName": "book_placeholder",
+        "description": "A collection of heart-opening letters and responses from the beloved 'Dear Sugar' advice column."
+      },
+      {
+        "id": "78f4dd30-fac9-4266-a18b-8a438ae60d56",
+        "title": "Man\u2019s Search for Meaning",
+        "author": "Viktor E. Frankl",
+        "coverImageName": "book_placeholder",
+        "description": "A powerful psychological exploration of survival and the search for purpose."
+      }
+    ]
+  },
+  {
+    "id": "a2334dcc-ea06-447a-95ca-b9a5bed2987f",
+    "title": "Books for Grieving",
+    "description": "A handpicked list for when you're feeling grieving.",
+    "moodTag": "grieving",
+    "books": [
+      {
+        "id": "3f4b0278-ed6c-402f-a380-3d384c930385",
+        "title": "Tiny Beautiful Things",
+        "author": "Cheryl Strayed",
+        "coverImageName": "book_placeholder",
+        "description": "A collection of heart-opening letters and responses from the beloved 'Dear Sugar' advice column."
+      },
+      {
+        "id": "c4072e27-f811-4611-8aff-e548669cff08",
+        "title": "Everything I Know About Love",
+        "author": "Dolly Alderton",
+        "coverImageName": "book_placeholder",
+        "description": "A funny and deeply personal memoir of friendship, love, and growing up."
+      },
+      {
+        "id": "4140faf7-e3b0-4a95-886b-690a4997b79b",
+        "title": "The Year of Magical Thinking",
+        "author": "Joan Didion",
+        "coverImageName": "book_placeholder",
+        "description": "A moving, honest, and raw reflection on grief and memory after the loss of a husband."
+      }
+    ]
+  },
+  {
+    "id": "02aa3dbb-d24f-465f-8e02-67c1243850c9",
+    "title": "Books for Reconnecting",
+    "description": "A handpicked list for when you're feeling reconnecting.",
+    "moodTag": "reconnecting",
+    "books": [
+      {
+        "id": "51bba279-48c1-48b0-be4f-388c686e079a",
+        "title": "The Art of Happiness",
+        "author": "Dalai Lama",
+        "coverImageName": "book_placeholder",
+        "description": "Spiritual wisdom and psychological insight from a Buddhist monk and a psychiatrist."
+      },
+      {
+        "id": "9fd81d63-d95c-4e65-905e-57e8e438ae47",
+        "title": "Braiding Sweetgrass",
+        "author": "Robin Wall Kimmerer",
+        "coverImageName": "book_placeholder",
+        "description": "Indigenous wisdom, scientific knowledge, and the teachings of plants."
+      },
+      {
+        "id": "d8ae075f-518b-404d-86b2-fb960d752663",
+        "title": "Tiny Beautiful Things",
+        "author": "Cheryl Strayed",
+        "coverImageName": "book_placeholder",
+        "description": "A collection of heart-opening letters and responses from the beloved 'Dear Sugar' advice column."
+      }
+    ]
+  }
+]
+

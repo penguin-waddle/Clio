@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "clioapp-1dc1f"
+  },
+  "targets": {
+    "clioapp-1dc1f": {
+      "hosting": {
+        "clioapp-1dc1f-links": [
+          "clioapp-1dc1f-links"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
