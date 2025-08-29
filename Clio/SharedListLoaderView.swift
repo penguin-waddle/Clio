@@ -46,16 +46,25 @@ struct SharedListLoaderView: View {
         .navigationTitle("Shared List")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            readingListManager.fetchListByShareID(shareID) { result in
-                if let list = result {
-                    self.sharedList = list
-                    readingListManager.fetchBooks(for: list) {
-                        self.books = readingListManager.booksByListID[list.id ?? ""] ?? []
+            // 1) Read the public metadata doc
+            readingListManager.fetchPublicSharedList(shareID: shareID) { list in
+                guard let list = list else {
+                    self.isLoading = false
+                    self.notFound = true
+                    return
+                }
+                self.sharedList = list
+
+                // 2) If we have ownerUID, fetch the full books from the owner's private subcollection
+                if let owner = list.ownerUID {
+                    readingListManager.fetchOwnerBooks(ownerUID: owner, shareID: list.shareID) { fullBooks in
+                        self.books = fullBooks
                         self.isLoading = false
                     }
                 } else {
+                    // Fallback: no ownerUID on public doc — show just the header
+                    self.books = []
                     self.isLoading = false
-                    self.notFound = true
                 }
             }
         }

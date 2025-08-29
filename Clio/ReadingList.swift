@@ -17,4 +17,5 @@ struct ReadingList: Identifiable, Codable {
     var coverImageURL: String?
     var isPublic: Bool
     var shareID: String
+    var ownerUID: String?
 }

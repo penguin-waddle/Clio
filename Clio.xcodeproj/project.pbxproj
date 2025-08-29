@@ -40,9 +40,22 @@
 		1EB0D0FA2E17A29300CDC873 /* ClioUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClioUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		1E0593EA2E61453B00F28A43 /* Exceptions for "Clio" folder in "Clio" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 1EB0D0DF2E17A29200CDC873 /* Clio */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1EB0D0E22E17A29200CDC873 /* Clio */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1E0593EA2E61453B00F28A43 /* Exceptions for "Clio" folder in "Clio" target */,
+			);
 			path = Clio;
 			sourceTree = "<group>";
 		};
@@ -429,6 +442,7 @@
 				DEVELOPMENT_TEAM = VCZ9KBCD6H;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Clio/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Clio iOS";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -461,6 +475,7 @@
 				DEVELOPMENT_TEAM = VCZ9KBCD6H;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Clio/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Clio iOS";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

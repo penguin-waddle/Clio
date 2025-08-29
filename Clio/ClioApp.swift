@@ -35,6 +35,7 @@ struct ClioApp: App {
                     .environmentObject(linkRouter)
             } else {
                 AuthView()
+                    .environmentObject(linkRouter)
                     .onOpenURL { url in
                         print("📬 Received URL (AuthView): \(url)")
                         linkRouter.handleDeepLink(url)

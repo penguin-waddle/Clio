@@ -24,38 +24,34 @@ class ReadingListManager: ObservableObject {
     }
     
     private var savedBooksManager: SavedBooksManager?
-    
     func configure(savedBooksManager: SavedBooksManager) {
         self.savedBooksManager = savedBooksManager
     }
 
+    // MARK: - Fetch lists (private owner lists)
     func fetchLists() {
         readingListsCollection?.order(by: "createdAt", descending: true).getDocuments { snapshot, error in
             if let error = error {
                 print("❌ Error fetching lists: \(error)")
                 return
             }
-
             do {
                 self.readingLists = try snapshot?.documents.compactMap {
                     try $0.data(as: ReadingList.self)
                 } ?? []
-
-                // Optional: preload books
                 self.readingLists.forEach { self.fetchBooks(for: $0) }
-
             } catch {
                 print("❌ Decoding error: \(error)")
             }
         }
     }
 
+    // MARK: - Fetch books for a given private list
     func fetchBooks(for list: ReadingList, completion: (() -> Void)? = nil) {
         guard let listID = list.id, let uid = uid else {
             completion?()
             return
         }
-
         let booksRef = db.collection("users").document(uid)
             .collection("readingLists").document(listID)
             .collection("books")
@@ -67,16 +63,15 @@ class ReadingListManager: ObservableObject {
                 completion?()
                 return
             }
-
             let books = snapshot?.documents.compactMap {
                 try? $0.data(as: Book.self)
             } ?? []
-
             self.booksByListID[listID] = books
             completion?()
         }
     }
 
+    // MARK: - Create list (private + public mirror)
     func createList(
         title: String,
         description: String?,
@@ -86,126 +81,124 @@ class ReadingListManager: ObservableObject {
         let shareID = generateShareID(length: 10)
         let timestamp = Date()
 
+        guard let userID = Auth.auth().currentUser?.uid else {
+            completion(.failure(NSError(
+                domain: "ReadingListManager", code: 401,
+                userInfo: [NSLocalizedDescriptionKey: "User not logged in."]
+            )))
+            return
+        }
+
         let newList = ReadingList(
+            id: nil,
             title: title,
             createdAt: timestamp,
             bookIDs: [],
             description: description,
             coverImageURL: coverImageURL,
             isPublic: true,
-            shareID: shareID
+            shareID: shareID,
+            ownerUID: userID
         )
 
-        guard let userID = Auth.auth().currentUser?.uid else {
-            completion(.failure(NSError(domain: "ReadingListManager", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not logged in."])))
-            return
-        }
-
-        let docRef = db.collection("users").document(userID)
+        let privateDoc = db.collection("users").document(userID)
             .collection("readingLists").document(shareID)
 
         do {
-            try docRef.setData(from: newList) { error in
+            try privateDoc.setData(from: newList) { [weak self] error in
                 if let error = error {
-                    completion(.failure(error))
-                } else {
-                    DispatchQueue.main.async {
-                        self.readingLists.append(newList)
-                        completion(.success(newList))
-                    }
+                    completion(.failure(error)); return
+                }
+                // Public mirror (metadata only)
+                do {
+                    let publicData = try Firestore.Encoder().encode(newList)
+                    self?.db.collection("readingLists")
+                        .document(shareID)
+                        .setData(publicData) { err in
+                            if let err = err { print("⚠️ Public mirror write failed:", err) }
+                        }
+                } catch {
+                    print("⚠️ Encode public mirror failed:", error)
+                }
+                DispatchQueue.main.async {
+                    self?.readingLists.append(newList)
+                    completion(.success(newList))
                 }
             }
         } catch {
             completion(.failure(error))
         }
     }
-    
+
     private func generateShareID(length: Int = 8) -> String {
         let characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         return String((0..<length).compactMap { _ in characters.randomElement() })
     }
-    
+
+    // MARK: - Followed lists (your own UX feature)
     private var followedListsCollection: CollectionReference? {
         guard let uid = uid else { return nil }
         return db.collection("users").document(uid).collection("followedLists")
     }
-    
     func followSharedList(_ sharedList: ReadingList) {
         let shareID = sharedList.shareID
-
         let ref = followedListsCollection?.document(shareID)
         do {
             try ref?.setData(from: sharedList)
-            print("✅ Followed shared list.")
             fetchFollowedLists()
         } catch {
             print("❌ Failed to save followed list: \(error)")
         }
     }
-    
     func fetchFollowedLists() {
         followedListsCollection?.getDocuments { snapshot, error in
             if let error = error {
                 print("❌ Error fetching followed lists: \(error)")
                 return
             }
-
             do {
                 self.followedLists = try snapshot?.documents.compactMap {
                     try $0.data(as: ReadingList.self)
                 } ?? []
-
                 self.followedLists.forEach { self.fetchBooks(for: $0) }
-
             } catch {
                 print("❌ Decoding error for followed lists: \(error)")
             }
         }
     }
-    
     func isFollowingSharedList(_ sharedList: ReadingList) -> Bool {
-        let shareID = sharedList.shareID
-        return followedLists.contains(where: { $0.shareID == shareID })
+        followedLists.contains(where: { $0.shareID == sharedList.shareID })
     }
-    
     func unfollowSharedList(_ sharedList: ReadingList) {
-        let shareID = sharedList.shareID
-
-        followedListsCollection?.document(shareID).delete { error in
+        followedListsCollection?.document(sharedList.shareID).delete { error in
             if let error = error {
                 print("❌ Failed to unfollow list: \(error)")
             } else {
-                self.followedLists.removeAll { $0.shareID == shareID }
-                print("✅ Unfollowed shared list.")
+                self.followedLists.removeAll { $0.shareID == sharedList.shareID }
             }
         }
     }
-    
+
+    // MARK: - Get by ID helpers
     func fetchListByID(_ id: String, completion: @escaping (ReadingList?) -> Void) {
         readingListsCollection?.document(id).getDocument { snapshot, error in
             if let error = error {
                 print("❌ Error fetching list by ID: \(error)")
-                completion(nil)
-                return
+                completion(nil); return
             }
-
             guard let snapshot = snapshot, snapshot.exists else {
-                completion(nil)
-                return
+                completion(nil); return
             }
-
             do {
                 let list = try snapshot.data(as: ReadingList.self)
-                self.fetchBooks(for: list) {
-                    completion(list)
-                }
+                self.fetchBooks(for: list) { completion(list) }
             } catch {
                 print("❌ Decoding error: \(error)")
                 completion(nil)
             }
         }
     }
-    
+
     func fetchListByShareID(_ shareID: String, completion: @escaping (ReadingList?) -> Void) {
         db.collectionGroup("readingLists")
             .whereField("shareID", isEqualTo: shareID)
@@ -213,15 +206,11 @@ class ReadingListManager: ObservableObject {
             .getDocuments { snapshot, error in
                 if let error = error {
                     print("❌ Failed to fetch shared list: \(error)")
-                    completion(nil)
-                    return
+                    completion(nil); return
                 }
-
                 guard let doc = snapshot?.documents.first else {
-                    completion(nil)
-                    return
+                    completion(nil); return
                 }
-
                 do {
                     let list = try doc.data(as: ReadingList.self)
                     completion(list)
@@ -232,6 +221,7 @@ class ReadingListManager: ObservableObject {
             }
     }
 
+    // MARK: - Delete list
     func deleteList(_ list: ReadingList) {
         guard let id = list.id else { return }
         readingListsCollection?.document(id).delete { error in
@@ -243,50 +233,112 @@ class ReadingListManager: ObservableObject {
         }
     }
 
+    // MARK: - Add/Remove book + public preview maintenance
     func addBook(_ bookID: String, to list: ReadingList, fullBook: Book) {
         guard let id = list.id, let uid = uid else { return }
 
-        // Save book to subcollection
+        // 1) Save into owner's private subcollection
         let listBookRef = db.collection("users").document(uid)
             .collection("readingLists").document(id)
             .collection("books").document(bookID)
-
         do {
             try listBookRef.setData(from: fullBook)
         } catch {
-            print("❌ Failed to store book in list: \(error)")
+            print("❌ Failed to store book in list:", error)
         }
 
-        // Also update the bookIDs field
+        // 2) Update owner's bookIDs array
         readingListsCollection?.document(id).updateData([
             "bookIDs": FieldValue.arrayUnion([bookID])
-        ]) { error in
+        ]) { [weak self] error in
             if let error = error {
-                print("❌ Failed to add book ID to list: \(error)")
+                print("❌ Failed to add book ID to list:", error)
             } else {
-                self.fetchLists()
+                self?.fetchLists()
+            }
+        }
+
+        // 3) Public preview (max 3 entries) for web page
+        if list.isPublic {
+            let previewsRef = db.collection("readingLists").document(list.shareID)
+                .collection("previewBooks")
+            let preview = PublicBookPreview(
+                id: bookID,
+                title: fullBook.title,
+                author: fullBook.author,
+                coverImageURL: fullBook.coverImageURL?.absoluteString
+            )
+            previewsRef.getDocuments { snap, _ in
+                let count = snap?.documents.count ?? 0
+                guard count < 3 else { return }
+                do {
+                    try previewsRef.document(bookID).setData(from: preview)
+                } catch {
+                    print("⚠️ Failed to add public preview:", error)
+                }
             }
         }
     }
-    
+
     func removeBook(_ bookID: String, from list: ReadingList) {
         guard let id = list.id, let uid = uid else { return }
 
-        // Remove book document from subcollection
+        // 1) Remove from owner's private subcollection
         db.collection("users").document(uid)
             .collection("readingLists").document(id)
-            .collection("books").document(bookID).delete()
+            .collection("books").document(bookID)
+            .delete()
 
-        // Remove book ID from bookIDs array
+        // 2) Update owner's bookIDs array
         readingListsCollection?.document(id).updateData([
             "bookIDs": FieldValue.arrayRemove([bookID])
-        ]) { error in
+        ]) { [weak self] error in
             if let error = error {
-                print("❌ Failed to remove book ID: \(error)")
+                print("❌ Failed to remove book ID:", error)
             } else {
-                self.fetchLists()
+                self?.fetchLists()
+            }
+        }
+
+        // 3) Remove from public preview (best-effort)
+        if list.isPublic {
+            db.collection("readingLists").document(list.shareID)
+                .collection("previewBooks").document(bookID)
+                .delete()
+        }
+    }
+
+    // MARK: - Public/shared fetching for deep links
+    func fetchPublicSharedList(shareID: String, completion: @escaping (ReadingList?) -> Void) {
+        db.collection("readingLists").document(shareID).getDocument { snap, error in
+            if let error = error {
+                print("❌ fetchPublicSharedList error:", error)
+                completion(nil); return
+            }
+            guard let snap = snap, snap.exists else {
+                completion(nil); return
+            }
+            do {
+                let list = try snap.data(as: ReadingList.self)
+                completion(list)
+            } catch {
+                print("❌ Decoding public shared list failed:", error)
+                completion(nil)
             }
         }
     }
-}
 
+    func fetchOwnerBooks(ownerUID: String, shareID: String, completion: @escaping ([Book]) -> Void) {
+        db.collection("users").document(ownerUID)
+          .collection("readingLists").document(shareID)
+          .collection("books")
+          .getDocuments { snap, error in
+              if let error = error {
+                  print("❌ fetchOwnerBooks error:", error)
+                  completion([]); return
+              }
+              let books = snap?.documents.compactMap { try? $0.data(as: Book.self) } ?? []
+              completion(books)
+          }
+    }
+}
