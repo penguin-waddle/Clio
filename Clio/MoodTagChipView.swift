@@ -17,15 +17,19 @@ struct MoodTagChipView: View {
             .foregroundColor(.white)
             .padding(.vertical, 10)
             .padding(.horizontal, 16)
-            .background(Color.blue)
+            .background(Color.accentColor)
             .clipShape(Capsule())
-            .shadow(radius: 2)
+            .shadow(radius: 2, y: 1)
+            .accessibilityLabel(Text("Mood: \(moodTag.displayName)"))
     }
 }
 
 #Preview {
     PreviewWrapper {
         MoodTagChipView(moodTag: .startingOver)
+            .padding()
+            .background(Color(.systemBackground))
+            .environment(\.colorScheme, .light)
     }
 }
 

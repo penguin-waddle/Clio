@@ -10,6 +10,7 @@ import SwiftUI
 struct ReadingListDetailView: View {
     let list: ReadingList
     @EnvironmentObject var readingListManager: ReadingListManager
+    @EnvironmentObject var session: SessionManager
 
     @State private var isLoading = true
 
@@ -43,16 +44,28 @@ struct ReadingListDetailView: View {
                         BookCardView(book: book)
                     }
                     .contextMenu {
-                        Button(role: .destructive) {
-                            readingListManager.removeBook(book.id, from: list)
-                        } label: {
-                            Label("Remove from List", systemImage: "trash")
+                        if !session.isGuest {
+                            Button(role: .destructive) {
+                                readingListManager.removeBook(book.id, from: list)
+                            } label: {
+                                Label("Remove from List", systemImage: "trash")
+                            }
                         }
                     }
                 }
             }
         }
         .navigationTitle(list.title)
+        .toolbar {
+            if list.isPublic {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    let url = URL(string: "https://clioapp-1dc1f.web.app/#/list/\(list.shareID)")!
+                    ShareLink(item: url) {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                }
+            }
+        }
         .onAppear {
             isLoading = true
             readingListManager.fetchBooks(for: list) {

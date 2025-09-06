@@ -11,7 +11,9 @@ struct BookListView: View {
     let listID: String?
     let moodTag: MoodTag?
 
+    @EnvironmentObject var session: SessionManager
     @EnvironmentObject var readingListManager: ReadingListManager
+
     @State private var list: ReadingList?
     @State private var books: [Book] = []
     @StateObject private var viewModel = BookListViewModel()
@@ -25,7 +27,7 @@ struct BookListView: View {
                 moodTagSection(for: moodTag)
                     .navigationTitle(moodTag.displayName)
             } else {
-                loadingView
+                loadingOrMessageView
             }
         }
     }
@@ -50,8 +52,7 @@ struct BookListView: View {
         if viewModel.books.isEmpty {
             ProgressView("Loading...")
                 .task {
-                    // Clear old data and fetch new results
-                    viewModel.books = []
+                    // fetch fresh results for the mood keyword
                     await viewModel.fetchBooks(for: moodTag.keyword)
                 }
         } else {
@@ -65,19 +66,38 @@ struct BookListView: View {
         }
     }
 
-    private var loadingView: some View {
-        ProgressView("Loading...")
-            .onAppear {
-                if let listID = listID {
-                    readingListManager.fetchListByID(listID) { result in
-                        if let fetchedList = result {
-                            self.list = fetchedList
+    @ViewBuilder
+    private var loadingOrMessageView: some View {
+        if let listID = listID {
+            if session.isGuest {
+                VStack(spacing: 12) {
+                    Image(systemName: "person.crop.circle.badge.questionmark")
+                        .font(.system(size: 40))
+                        .foregroundColor(.secondary)
+                    Text("Sign in to view your private lists.")
+                        .foregroundColor(.secondary)
+                }
+                .onAppear {
+                    // Don’t attempt Firestore fetch in guest mode
+                    self.list = nil
+                    self.books = []
+                }
+            } else {
+                ProgressView("Loading…")
+                    .onAppear {
+                        readingListManager.fetchListByID(listID) { result in
+                            guard let fetched = result else { return }
+                            self.list = fetched
                             self.books = readingListManager.booksByListID[listID] ?? []
                         }
                     }
-                }
             }
+        } else {
+            ProgressView("Loading…")
+        }
     }
+
+    // MARK: - Inits
 
     init(listID: String) {
         self.listID = listID

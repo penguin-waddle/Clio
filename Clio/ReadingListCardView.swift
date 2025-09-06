@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct ReadingListCardView: View {
     let list: ReadingList
     let onDelete: (() -> Void)?
     let onView: (() -> Void)?
+    @EnvironmentObject var session: SessionManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -38,12 +37,12 @@ struct ReadingListCardView: View {
         .frame(width: 180, height: 100)
         .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 2)
         .contextMenu {
-            Button("View List") {
-                onView?()
-            }
-            
-            Button("Delete List", role: .destructive) {
-                onDelete?()
+            Button("View List") { onView?() }
+
+            if !session.isGuest {
+                Button("Delete List", role: .destructive) {
+                    onDelete?()
+                }
             }
         }
     }

@@ -10,6 +10,7 @@ import AlertToast
 
 struct SharedListView: View {
     @EnvironmentObject var readingListManager: ReadingListManager
+    @EnvironmentObject var session: SessionManager
     @State private var isFollowing = false
     @State private var showToast = false
     @State private var toastMessage = "Added to shelf"
@@ -18,7 +19,8 @@ struct SharedListView: View {
     let books: [Book]
     
     var shareURL: URL {
-        URL(string: "https://clioapp-1dc1f.web.app/\(list.shareID)")!
+        // Use hash route
+        URL(string: "https://clioapp-1dc1f.web.app/#/list/\(list.shareID)")!
     }
 
     var body: some View {
@@ -74,16 +76,21 @@ struct SharedListView: View {
                 .padding(.horizontal)
                 
                 Button(action: {
-                    if isFollowing {
-                        readingListManager.unfollowSharedList(list)
-                        toastMessage = "Removed from shelf"
-                    } else {
-                        readingListManager.followSharedList(list)
-                        toastMessage = "Added to shelf"
-                    }
-                    isFollowing.toggle()
-                    showToast = true
-                }) {
+                                    guard !session.isGuest else {
+                                        toastMessage = "Sign in to add lists to your shelf"
+                                        showToast = true
+                                        return
+                                    }
+                                    if isFollowing {
+                                        readingListManager.unfollowSharedList(list)
+                                        toastMessage = "Removed from shelf"
+                                    } else {
+                                        readingListManager.followSharedList(list)
+                                        toastMessage = "Added to shelf"
+                                    }
+                                    isFollowing.toggle()
+                                    showToast = true
+                                }) {
                     HStack {
                         Image(systemName: isFollowing ? "bookmark.slash" : "bookmark")
                         Text(isFollowing ? "Remove from Shelf" : "Add to My Shelf")

@@ -6,11 +6,9 @@
 //
 
 import SwiftUI
-import FirebaseFirestore
 
 struct SearchView: View {
     @StateObject private var viewModel = SearchViewModel()
-    @EnvironmentObject var readingListManager: ReadingListManager
 
     var body: some View {
         List {
@@ -36,25 +34,6 @@ struct SearchView: View {
         .onSubmit(of: .search) {
             Task { await viewModel.searchBooks() }
         }
-    }
-}
-
-extension GoogleBookItem {
-    func toBook() -> Book {
-        let urlString = volumeInfo.imageLinks?.thumbnail?.replacingOccurrences(of: "http://", with: "https://")
-        let url = URL(string: urlString ?? "")
-        return Book(
-            id: self.id,
-            title: volumeInfo.title,
-            author: volumeInfo.authors?.first ?? "Unknown Author",
-            coverImageName: "book_placeholder",
-            coverImageURL: url,
-            description: volumeInfo.description ?? "No description",
-            pageCount: volumeInfo.pageCount,
-            categories: volumeInfo.categories,
-            publishedDate: volumeInfo.publishedDate,
-            publisher: volumeInfo.publisher
-        )
     }
 }
 

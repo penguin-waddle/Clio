@@ -71,15 +71,15 @@ struct BookCardView: View {
 }
 
 #Preview {
-    PreviewWrapper {
-        BookCardView(book: Book(
-            id: "book123",
-            title: "The Midnight Library",
-            author: "Matt Haig",
-            coverImageName: "book_placeholder",
-            description: "A woman finds herself in a library of parallel lives and learns what it means to truly begin again."
-        ))
-    }
+    BookCardView(
+      book: Book(
+        id: "book123",
+        title: "The Midnight Library",
+        author: "Matt Haig",
+        coverImageName: "book_placeholder",
+        description: "A woman finds herself in a library of parallel lives…"
+      )
+    )
 }
 
 

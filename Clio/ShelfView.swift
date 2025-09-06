@@ -9,7 +9,9 @@ import SwiftUI
 
 struct ShelfView: View {
     @EnvironmentObject var savedBooks: SavedBooksManager
+    @EnvironmentObject var session: SessionManager
     @EnvironmentObject var readingListManager: ReadingListManager
+
     @State private var selectedList: ReadingList?
     @State private var showListDetail = false
     @State private var showDeleteConfirmation = false
@@ -19,6 +21,10 @@ struct ShelfView: View {
     @State private var newListTitle = ""
     @State private var newListDescription = ""
     @State private var newCoverImageURL = ""
+
+    // auth gating
+    @State private var showAuthAlert = false
+    @State private var showAuthSheet = false
 
     var body: some View {
         List {
@@ -32,30 +38,46 @@ struct ShelfView: View {
                 ReadingListDetailView(list: list)
             }
         }
+
+        // 🔔 Guest gating alert
+        .alert("Sign in required", isPresented: $showAuthAlert) {
+            Button("Not now", role: .cancel) {}
+            Button("Sign In") { showAuthSheet = true }
+        } message: {
+            Text("Create and manage reading lists when you have an account.")
+        }
+
+        // 🗑️ Delete confirmation
         .alert("Delete this list?", isPresented: $showDeleteConfirmation, presenting: selectedList) { list in
             Button("Delete", role: .destructive) {
                 readingListManager.deleteList(list)
                 selectedList = nil
             }
-            Button("Cancel", role: .cancel) {
-                selectedList = nil
-            }
+            Button("Cancel", role: .cancel) { selectedList = nil }
         } message: { list in
             Text("Are you sure you want to delete \"\(list.title)\"?")
         }
+
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     Button("➕ Create New List") {
-                        showCreateListSheet = true
+                        if session.isGuest {
+                            //  Show alert first (don’t jump into auth)
+                            showAuthAlert = true
+                        } else {
+                            showCreateListSheet = true
+                        }
                     }
 
                     NavigationLink("🔗 Test Shared List View") {
                         SharedListLoaderView(shareID: "abc123XYZ")
                     }
 
-                    Button("Log Out", role: .destructive) {
-                        AuthManager.shared.logOut()
+                    if session.isGuest {
+                        Button("Sign In") { showAuthSheet = true }
+                    } else {
+                        Button("Log Out", role: .destructive) { session.signOut() }
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -64,11 +86,26 @@ struct ShelfView: View {
             }
         }
         .onAppear {
-            readingListManager.fetchLists()
-            readingListManager.fetchFollowedLists()
+            if !session.isGuest {
+                readingListManager.fetchLists()
+                readingListManager.fetchFollowedLists()
+            }
         }
-        .sheet(isPresented: $showCreateListSheet) {
-            createListSheet
+
+        // sheets
+        .sheet(isPresented: $showCreateListSheet) { createListSheet }
+        .sheet(isPresented: $showAuthSheet) {
+            NavigationStack {
+                AuthView()
+                    .environmentObject(session)
+                    .navigationTitle("Sign In")
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+        }
+        .onChange(of: session.uid) {
+            if session.uid != nil {
+                showAuthSheet = false
+            }
         }
     }
 
@@ -102,6 +139,11 @@ struct ShelfView: View {
                     }
                     .listRowInsets(EdgeInsets())
                 }
+            } else if !session.isGuest {
+                Section {
+                    Text("No lists yet. Tap ••• to create your first list.")
+                        .foregroundColor(.secondary)
+                }
             }
         }
     }
@@ -114,11 +156,7 @@ struct ShelfView: View {
                         HStack(spacing: 16) {
                             ForEach(readingListManager.followedLists) { list in
                                 NavigationLink(destination: SharedListLoaderView(shareID: list.shareID)) {
-                                    ReadingListCardView(
-                                        list: list,
-                                        onDelete: nil,
-                                        onView: nil
-                                    )
+                                    ReadingListCardView(list: list, onDelete: nil, onView: nil)
                                 }
                             }
                         }
@@ -132,9 +170,16 @@ struct ShelfView: View {
 
     private var savedBooksSection: some View {
         Section(header: Text("Saved Books")) {
-            ForEach(savedBooks.savedBooks) { book in
-                NavigationLink(destination: BookDetailView(book: book)) {
-                    BookCardView(book: book)
+            if savedBooks.savedBooks.isEmpty {
+                Text(session.isGuest
+                     ? "No saved books yet. Save a book from Explore or Search — it’ll stay on this device."
+                     : "No saved books yet. Save a book from Explore or Search to see it here.")
+                .foregroundColor(.secondary)
+            } else {
+                ForEach(savedBooks.savedBooks) { book in
+                    NavigationLink(destination: BookDetailView(book: book)) {
+                        BookCardView(book: book)
+                    }
                 }
             }
         }
@@ -144,8 +189,7 @@ struct ShelfView: View {
         NavigationStack {
             VStack(spacing: 24) {
                 Text("New Reading List")
-                    .font(.title2)
-                    .bold()
+                    .font(.title2).bold()
 
                 TextField("List Name", text: $newListTitle)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -160,31 +204,29 @@ struct ShelfView: View {
                     .padding(.horizontal)
 
                 Button("Create") {
-                    let trimmedTitle = newListTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let trimmedDescription = newListDescription.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let trimmedImageURL = newCoverImageURL.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let title = newListTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let desc  = newListDescription.trimmingCharacters(in: .whitespacesAndNewlines)
+                    let img   = newCoverImageURL.trimmingCharacters(in: .whitespacesAndNewlines)
 
-                    if !trimmedTitle.isEmpty {
-                        readingListManager.createList(
-                            title: trimmedTitle,
-                            description: trimmedDescription.isEmpty ? nil : trimmedDescription,
-                            coverImageURL: trimmedImageURL.isEmpty ? nil : trimmedImageURL
-                        ) { result in
-                            switch result {
-                            case .success(let list):
-                                print("✅ List created: \(list.title)")
-                            case .failure(let error):
-                                print("❌ Failed to create list:", error.localizedDescription)
-                            }
-                        }
-                            
-                        }
+                    guard !title.isEmpty else { return }
 
-                        newListTitle = ""
-                        newListDescription = ""
-                        newCoverImageURL = ""
-                        showCreateListSheet = false
+                    readingListManager.createList(
+                        title: title,
+                        description: desc.isEmpty ? nil : desc,
+                        coverImageURL: img.isEmpty ? nil : img
+                    ) { result in
+                        switch result {
+                        case .success(let list):
+                            print("✅ List created: \(list.title)")
+                        case .failure(let error):
+                            print("❌ Failed to create list:", error.localizedDescription)
+                        }
                     }
+
+                    newListTitle = ""
+                    newListDescription = ""
+                    newCoverImageURL = ""
+                    showCreateListSheet = false
                 }
                 .buttonStyle(.borderedProminent)
 
@@ -200,6 +242,7 @@ struct ShelfView: View {
             .navigationBarTitleDisplayMode(.inline)
         }
     }
+}
 
 #Preview {
     PreviewWrapper {

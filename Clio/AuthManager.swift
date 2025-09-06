@@ -10,7 +10,6 @@ import FirebaseAuth
 
 final class AuthManager {
     static let shared = AuthManager()
-
     private init() {}
 
     // Sign Up
@@ -26,23 +25,11 @@ final class AuthManager {
     }
 
     // Log Out
-    func logOut() {
-        do {
-            try Auth.auth().signOut()
-            UserDefaults.standard.removeObject(forKey: "uid")
-        } catch {
-            print("❌ Logout failed: \(error.localizedDescription)")
-        }
+    func logOut() throws {
+        try Auth.auth().signOut()
+        // No UserDefaults writes here — SessionManager owns that.
     }
 
-    // Get current UID
-    var currentUID: String? {
-        return Auth.auth().currentUser?.uid
-    }
-
-    // Check if logged in
-    var isSignedIn: Bool {
-        return Auth.auth().currentUser != nil
-    }
-    
+    var currentUID: String? { Auth.auth().currentUser?.uid }
+    var isSignedIn: Bool { Auth.auth().currentUser != nil }
 }

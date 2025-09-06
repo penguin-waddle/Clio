@@ -5,7 +5,6 @@
 //  Created by Vivien on 7/11/25.
 //
 
-import FirebaseFirestore
 import Foundation
 
 @MainActor
@@ -33,22 +32,5 @@ class SearchViewModel: ObservableObject {
         }
 
         isLoading = false
-    }
-    
-    func testSaveToFirestore() {
-        let db = Firestore.firestore()
-        let sampleData: [String: Any] = [
-            "title": "Sample Book",
-            "author": "John Doe",
-            "timestamp": Timestamp(date: Date())
-        ]
-
-        db.collection("books").addDocument(data: sampleData) { error in
-            if let error = error {
-                print("❌ Firestore save failed: \(error.localizedDescription)")
-            } else {
-                print("✅ Firestore save succeeded!")
-            }
-        }
     }
 }
